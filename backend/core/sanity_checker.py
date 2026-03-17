@@ -4,7 +4,7 @@ sanity_checker.py — 数据集一致性体检（纯 Python，生成器）
 import os
 from typing import Iterator
 
-from backend.core.dataset_manager import DatasetInfo, parse_yolo_labels, IMG_EXTS
+from core.dataset_manager import DatasetInfo, parse_yolo_labels, IMG_EXTS
 
 
 def check_dataset(info: DatasetInfo) -> Iterator[dict]:

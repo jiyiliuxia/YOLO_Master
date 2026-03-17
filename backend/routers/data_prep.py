@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
-from backend.core import frame_extractor, image_cleaner, batch_renamer
+from core import frame_extractor, image_cleaner, batch_renamer
 
 router = APIRouter(prefix="/api/data-prep", tags=["data-prep"])
 

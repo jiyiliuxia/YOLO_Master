@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
-from backend.core import dataset_manager, sanity_checker, dataset_splitter
+from core import dataset_manager, sanity_checker, dataset_splitter
 
 router = APIRouter(prefix="/api/dataset", tags=["dataset"])
 

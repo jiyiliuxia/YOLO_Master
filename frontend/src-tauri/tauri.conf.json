@@ -44,6 +44,19 @@
       "deb": {
         "depends": []
       },
+      "nsis": {
+        "installMode": "perMachine",
+        "installerIcon": null,
+        "headerImage": null,
+        "sidebarImage": null,
+        "displayLanguageSelector": false,
+        "languages": ["SimpChinese", "English"],
+        "customTemplate": null,
+        "compression": "lzma",
+        "webviewInstallMode": {
+          "type": "downloadBootstrapper"
+        }
+      },
       "externalBin": [],
       "icon": [
         "icons/32x32.png",
@@ -54,10 +67,11 @@
       ],
       "identifier": "com.yolostudio.app",
       "longDescription": "视觉模型工作站 — 数据集管理、模型训练、推理测试",
-      "resources": [],
+      "resources": [
+        "../../dist/backend/**"
+      ],
       "shortDescription": "YOLO 视觉模型工作站",
       "targets": [
-        "msi",
         "nsis"
       ],
       "windows": {

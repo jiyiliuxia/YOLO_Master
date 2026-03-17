@@ -200,7 +200,7 @@ const navItems = [
   { path: '/dataset',    label: '数据集管理', icon: Database },
   { path: '/train',      label: '模型训练',   icon: Cpu,          soon: true },
   { path: '/export',     label: '模型导出',   icon: Download,     soon: true },
-  { path: '/inference',  label: '推理测试',   icon: FlaskConical, soon: true },
+  { path: '/inference',  label: '推理测试',   icon: FlaskConical },
 ]
 
 const currentTitle = computed(() => {

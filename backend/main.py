@@ -5,12 +5,12 @@ main.py — YOLO-Studio FastAPI 后端入口
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import data_prep, dataset
+from routers import data_prep, dataset, inference
 
 app = FastAPI(
     title="YOLO-Studio API",
     description="视觉模型工作站后端服务",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 # 允许来自 Tauri WebView / 本地开发服务器的跨域请求
@@ -23,13 +23,15 @@ app.add_middleware(
 
 app.include_router(data_prep.router)
 app.include_router(dataset.router)
+app.include_router(inference.router)
 
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": "0.3.0"}
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="127.0.0.1", port=8765, reload=False)
+    # 打包后必须传 app 对象，不能用字符串 "main:app"（PyInstaller 无法动态导入）
+    uvicorn.run(app, host="127.0.0.1", port=8765, reload=False)

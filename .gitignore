@@ -1,3 +1,7 @@
 ﻿backend/core/__pycache__
 backend/__pycache__
 backend/routers/__pycache__
+.venv_pack
+dist
+build
+release

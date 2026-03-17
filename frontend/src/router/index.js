@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import DataPrepView from '../views/DataPrepView.vue'
 import DatasetView from '../views/DatasetView.vue'
+import InferenceView from '../views/InferenceView.vue'
 
 const routes = [
     { path: '/', redirect: '/data-prep' },
@@ -9,7 +10,7 @@ const routes = [
     // 后续模块占位
     { path: '/train', component: { template: '<div class="placeholder">🚀 模型训练 — 开发中</div>' } },
     { path: '/export', component: { template: '<div class="placeholder">📦 模型导出 — 开发中</div>' } },
-    { path: '/inference', component: { template: '<div class="placeholder">🔬 推理测试 — 开发中</div>' } },
+    { path: '/inference', component: InferenceView, meta: { title: '推理测试' } },
 ]
 
 export default createRouter({

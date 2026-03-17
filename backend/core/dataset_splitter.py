@@ -8,7 +8,7 @@ from typing import Iterator
 
 import yaml
 
-from backend.core.dataset_manager import DatasetInfo, IMG_EXTS
+from core.dataset_manager import DatasetInfo, IMG_EXTS
 
 
 def split_dataset(
