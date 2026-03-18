@@ -1,5 +1,4 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "",
@@ -43,19 +42,6 @@
       "copyright": "",
       "deb": {
         "depends": []
-      },
-      "nsis": {
-        "installMode": "perMachine",
-        "installerIcon": null,
-        "headerImage": null,
-        "sidebarImage": null,
-        "displayLanguageSelector": false,
-        "languages": ["SimpChinese", "English"],
-        "customTemplate": null,
-        "compression": "lzma",
-        "webviewInstallMode": {
-          "type": "downloadBootstrapper"
-        }
       },
       "externalBin": [],
       "icon": [

@@ -87,3 +87,12 @@ export const datasetAPI = {
     split: (params, onEvent, onDone, onError) =>
         postSSE('/api/dataset/split', params, onEvent, onDone, onError),
 }
+
+export const exportAPI = {
+    /** 扫描项目目录下所有 .pt 权重文件 */
+    scanWeights: (project_dir) => api.post('/api/export/scan-weights', { project_dir }),
+    /** SSE 流式执行 ONNX 导出 */
+    exportModel: (params, onEvent, onDone, onError) =>
+        postSSE('/api/export/export', params, onEvent, onDone, onError),
+}
+

@@ -41,6 +41,7 @@ export default {
           green: '#10b981',
           orange: '#f97316',
           red: '#ef4444',
+          amber: '#f59e0b',
           yellow: '#fbbf24',
           blue: '#3b82f6',
           purple: '#8b5cf6',

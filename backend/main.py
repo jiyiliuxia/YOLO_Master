@@ -5,7 +5,7 @@ main.py — YOLO-Studio FastAPI 后端入口
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import data_prep, dataset, inference
+from routers import data_prep, dataset, inference, export
 
 app = FastAPI(
     title="YOLO-Studio API",
@@ -24,6 +24,7 @@ app.add_middleware(
 app.include_router(data_prep.router)
 app.include_router(dataset.router)
 app.include_router(inference.router)
+app.include_router(export.router)
 
 
 @app.get("/health")

@@ -1,16 +1,16 @@
 <template>
-  <div class="flex flex-col h-screen bg-bg-0 overflow-hidden">
+  <div class="app-root">
 
-    <!-- ── Custom Title Bar ─────────────────────────────── -->
+    <!-- ══ 顶部标题栏 ══════════════════════════════════════ -->
     <header
-      class="title-bar flex items-center h-10 flex-shrink-0 border-b border-border-1 z-50 select-none px-3 gap-3"
-      :class="isTauri ? 'glass' : 'bg-bg-2'"
+      class="topbar"
+      :class="isTauri ? 'glass' : ''"
       data-tauri-drag-region
     >
-      <!-- Logo (non-draggable) -->
-      <div class="flex items-center gap-2 flex-shrink-0" data-tauri-drag-region="false">
-        <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.2));border:1px solid rgba(99,102,241,.35)">
-          <svg viewBox="0 0 24 24" fill="none" width="13" height="13">
+      <!-- Logo -->
+      <div class="topbar-logo" data-tauri-drag-region="false">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
               stroke="url(#tlg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <defs>
@@ -20,212 +20,307 @@
             </defs>
           </svg>
         </div>
-        <span class="text-sm font-bold tracking-tight text-ink-1">YOLO<span class="text-accent">Studio</span></span>
+        <span class="logo-text">YOLO<span>Studio</span></span>
       </div>
 
-      <!-- Breadcrumb (draggable region) -->
-      <div class="flex items-center gap-1.5 text-xs text-ink-3 font-medium ml-1" data-tauri-drag-region>
-        <span class="text-ink-4" data-tauri-drag-region>/</span>
-        <span class="text-ink-2" data-tauri-drag-region>{{ currentTitle }}</span>
-      </div>
-
-      <!-- Spacer (draggable) -->
+      <!-- 左弹性空白 -->
       <div class="flex-1" data-tauri-drag-region></div>
 
-      <!-- API Status -->
-      <div class="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full mr-2"
-        :class="serverOk ? 'bg-em-green/10 text-em-green' : 'bg-em-red/10 text-em-red'">
-        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-          :class="serverOk ? 'bg-em-green animate-pulse-glow' : 'bg-em-red'"></span>
-        {{ serverOk ? 'API Online' : 'API Offline' }}
-      </div>
+      <!-- ── 中央药丸导航 ── -->
+      <nav class="pill-nav" data-tauri-drag-region="false">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.soon ? $route.path : item.path"
+          class="pill-item"
+          :class="[$route.path.startsWith(item.path) ? 'pill-active' : 'pill-idle', item.soon && 'pill-soon']"
+        >
+          <component :is="item.icon" :size="13" />
+          <span>{{ item.label }}</span>
+          <span v-if="item.soon" class="pill-badge">Soon</span>
+        </router-link>
+      </nav>
 
-      <!-- Window Controls (Tauri native or visual-only) -->
-      <div class="flex items-center gap-1.5">
-        <button
-          class="w-3 h-3 rounded-full transition-all group relative"
-          style="background:#fbbf24"
-          @click="minimizeWindow"
-          title="最小化"
-        >
-          <span class="absolute inset-0 rounded-full bg-yellow-600/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
-            <span class="w-1.5 h-px bg-yellow-900 rounded"></span>
-          </span>
+      <!-- 右弹性空白 -->
+      <div class="flex-1" data-tauri-drag-region></div>
+
+      <!-- 右侧控件 -->
+      <div class="topbar-right" data-tauri-drag-region="false">
+        <!-- Theme Toggle -->
+        <button class="tbar-btn" @click="toggleTheme" :title="isDark ? '切换日间模式' : '切换暗色模式'">
+          <Sun v-if="isDark" :size="14" />
+          <Moon v-else :size="14" />
         </button>
-        <button
-          class="w-3 h-3 rounded-full transition-all group relative"
-          style="background:#10b981"
-          @click="maximizeWindow"
-          title="最大化 / 还原"
-        >
-          <span class="absolute inset-0 rounded-full bg-green-700/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
-            <MaximizeIcon :size="6" class="text-green-900"/>
-          </span>
-        </button>
-        <button
-          class="w-3 h-3 rounded-full transition-all group relative"
-          style="background:#ef4444"
-          @click="closeWindow"
-          title="关闭"
-        >
-          <span class="absolute inset-0 rounded-full bg-red-700/40 opacity-0 group-hover:opacity-100 flex items-center justify-center">
-            <X :size="6" class="text-red-900"/>
-          </span>
-        </button>
+
+        <!-- API Status -->
+        <div class="api-badge" :class="serverOk ? 'api-ok' : 'api-err'">
+          <span class="api-dot" :class="serverOk ? 'dot-ok' : 'dot-err'"></span>
+          {{ serverOk ? 'Online' : 'Offline' }}
+        </div>
+
+        <!-- Window Controls -->
+        <div class="win-controls">
+          <button class="wc wc-min" @click="minimizeWindow" title="最小化"></button>
+          <button class="wc wc-max" @click="maximizeWindow" title="最大化"></button>
+          <button class="wc wc-cls" @click="closeWindow"   title="关闭"></button>
+        </div>
       </div>
     </header>
 
-    <!-- ── Body ─────────────────────────────────────────── -->
-    <div class="flex flex-1 overflow-hidden">
+    <!-- ══ 全宽主内容区 ══════════════════════════════════ -->
+    <main class="main-content">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </main>
 
-      <!-- ── Sidebar ────────────────────────────────────── -->
-      <aside
-        class="sidebar flex flex-col flex-shrink-0 bg-bg-2 border-r border-border-1 transition-all duration-300 ease-smooth overflow-hidden relative"
-        :class="sidebarExpanded ? 'w-56' : 'w-16'"
-      >
-        <!-- Subtle gradient overlay -->
-        <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg,rgba(99,102,241,.05) 0%,transparent 35%)"></div>
-
-        <!-- Toggle button -->
-        <button
-          @click="sidebarExpanded = !sidebarExpanded"
-          class="absolute -right-3 top-5 w-6 h-6 rounded-full bg-bg-4 border border-border-2 flex items-center justify-center text-ink-3 hover:text-ink-1 hover:border-accent-border transition-all z-10 shadow-card"
-        >
-          <ChevronLeft v-if="sidebarExpanded" :size="12"/>
-          <ChevronRight v-else :size="12"/>
-        </button>
-
-        <!-- Nav -->
-        <nav class="flex flex-col gap-1 p-2 flex-1 pt-3 relative">
-          <router-link
-            v-for="item in navItems" :key="item.path"
-            :to="item.path"
-            class="nav-link group flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-150 relative overflow-visible"
-            :class="[$route.path.startsWith(item.path) ? 'nav-active' : 'nav-idle']"
-            :title="item.label"
-          >
-            <component :is="item.icon" :size="17" class="flex-shrink-0 transition-colors" />
-            <span
-              class="text-xs font-semibold whitespace-nowrap transition-all duration-300 overflow-hidden"
-              :class="sidebarExpanded ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'"
-            >{{ item.label }}</span>
-            <span v-if="item.soon && sidebarExpanded"
-              class="ml-auto text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-accent/10 text-accent-light border border-accent/20"
-            >Soon</span>
-            <!-- Tooltip for collapsed -->
-            <div v-if="!sidebarExpanded"
-              class="absolute left-full ml-3 bg-bg-4 border border-border-2 text-ink-2 text-xs font-medium px-2.5 py-1.5 rounded-md shadow-card whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50"
-            >{{ item.label }}</div>
-          </router-link>
-        </nav>
-
-        <!-- Version footer -->
-        <div class="px-3 pb-3 relative">
-          <div v-if="sidebarExpanded" class="text-[10px] text-ink-4 font-medium border-t border-border-1 pt-2.5">
-            v0.2.0 · {{ isTauri ? '🖥 桌面端' : '🌐 浏览器' }}
-          </div>
-        </div>
-      </aside>
-
-      <!-- ── Main Content ───────────────────────────────── -->
-      <main class="flex-1 overflow-hidden bg-bg-1">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </main>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import {
   Database, Cpu, Download, Layers, FlaskConical,
-  ChevronLeft, ChevronRight, X, Maximize2 as MaximizeIcon
+  Sun, Moon
 } from 'lucide-vue-next'
 
-const route = useRoute()
+const route    = useRoute()
 const serverOk = ref(false)
-const sidebarExpanded = ref(window.innerWidth >= 1440)
-const isTauri = ref(!!window.__TAURI__)
+const isTauri  = ref(!!window.__TAURI__)
+const isDark   = ref(true)
 
-// ── Window Controls via Tauri API ────────────────────────
+// ── 主题 ──────────────────────────────────────────────────
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('light', !dark)
+  isDark.value = dark
+}
+function toggleTheme() {
+  const next = !isDark.value
+  applyTheme(next)
+  try { localStorage.setItem('yolostudio-theme', next ? 'dark' : 'light') } catch {}
+}
+
+// ── Tauri 窗口控件 ─────────────────────────────────────────
 let appWindow = null
-
 async function initTauri() {
-  if (window.__TAURI__) {
-    try {
-      const { appWindow: aw } = await import('@tauri-apps/api/window')
-      appWindow = aw
-    } catch (e) {
-      console.warn('[Tauri] Failed to import window API:', e)
-    }
-  }
+  if (!window.__TAURI__) return
+  try {
+    const { appWindow: aw } = await import('@tauri-apps/api/window')
+    appWindow = aw
+  } catch {}
 }
-
-async function minimizeWindow() {
-  if (appWindow) await appWindow.minimize()
-}
-
+async function minimizeWindow() { appWindow?.minimize() }
 async function maximizeWindow() {
-  if (appWindow) {
-    const isMax = await appWindow.isMaximized()
-    if (isMax) await appWindow.unmaximize()
-    else await appWindow.maximize()
-  }
+  if (!appWindow) return
+  ;(await appWindow.isMaximized()) ? appWindow.unmaximize() : appWindow.maximize()
 }
+async function closeWindow() { appWindow?.close() }
 
-async function closeWindow() {
-  if (appWindow) await appWindow.close()
+// ── 心跳 ──────────────────────────────────────────────────
+async function ping() {
+  try { await axios.get('http://127.0.0.1:8765/health', { timeout: 2500 }); serverOk.value = true }
+  catch { serverOk.value = false }
 }
-
-// ── Responsive sidebar ───────────────────────────────────
-const onResize = () => { sidebarExpanded.value = window.innerWidth >= 1440 }
 
 onMounted(async () => {
-  window.addEventListener('resize', onResize)
   await initTauri()
+  try { applyTheme(localStorage.getItem('yolostudio-theme') !== 'light') }
+  catch { applyTheme(true) }
   ping()
   setInterval(ping, 5000)
 })
 
-onUnmounted(() => { window.removeEventListener('resize', onResize) })
-
+// ── 导航项 ─────────────────────────────────────────────────
 const navItems = [
   { path: '/data-prep',  label: '数据准备',   icon: Layers },
   { path: '/dataset',    label: '数据集管理', icon: Database },
   { path: '/train',      label: '模型训练',   icon: Cpu,          soon: true },
-  { path: '/export',     label: '模型导出',   icon: Download,     soon: true },
+  { path: '/export',     label: '模型导出',   icon: Download },
   { path: '/inference',  label: '推理测试',   icon: FlaskConical },
 ]
-
-const currentTitle = computed(() => {
-  const found = navItems.find(i => route.path.startsWith(i.path))
-  return found?.label ?? 'YOLOStudio'
-})
-
-async function ping() {
-  try {
-    await axios.get('http://127.0.0.1:8765/health', { timeout: 2500 })
-    serverOk.value = true
-  } catch { serverOk.value = false }
-}
 </script>
 
 <style scoped>
-/* tauri drag region is set via data attribute in template */
-
-.nav-idle { color: var(--text-3); }
-.nav-idle:hover { color: var(--text-2); background: var(--bg-3); }
-
-.nav-active {
-  color: var(--accent-light);
-  background: rgba(99,102,241,0.12);
-  border: 1px solid rgba(99,102,241,0.2);
+/* ── 根容器 ──────────────────────────────────────────────── */
+.app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-0);
 }
-.nav-active:hover { color: var(--accent-light); }
+
+/* ── 顶部栏 ──────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 0 18px;
+  gap: 0;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border-1);
+  z-index: 50;
+  user-select: none;
+}
+
+/* Logo */
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(139,92,246,.18));
+  border: 1px solid rgba(99,102,241,.32);
+}
+.logo-text {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--text-1);
+}
+.logo-text span { color: var(--accent); }
+
+/* ── 中央药丸导航 ──────────────────────────────────────── */
+.pill-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 99px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-1);
+}
+.pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 15px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .15s, color .15s, box-shadow .15s;
+  white-space: nowrap;
+  color: var(--text-3);
+}
+.pill-idle:hover { color: var(--text-2); background: var(--bg-4); }
+.pill-active {
+  color: #ffffff;
+  background: var(--accent);
+  box-shadow: 0 2px 10px rgba(99,102,241,.35);
+}
+.pill-active:hover { color: #fff; }
+.pill-soon {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.pill-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: 1px 5px;
+  border-radius: 99px;
+  background: rgba(99,102,241,.15);
+  color: var(--accent-light);
+  border: 1px solid rgba(99,102,241,.2);
+}
+
+/* ── 右侧控件 ────────────────────────────────────────────── */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.tbar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid var(--border-2);
+  background: var(--bg-3);
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.tbar-btn:hover { color: var(--text-1); border-color: var(--accent-border); background: var(--bg-4); }
+
+/* API badge */
+.api-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+.api-ok  { background: rgba(16,185,129,.1); color: #10b981; }
+.api-err { background: rgba(239,68,68,.1);  color: #ef4444; }
+.api-dot { width: 6px; height: 6px; border-radius: 99px; }
+.dot-ok  { background: #10b981; animation: pulse 2s infinite; }
+.dot-err { background: #ef4444; }
+
+@keyframes pulse {
+  0%,100% { opacity:1; } 50% { opacity:.4; }
+}
+
+/* Window controls */
+.win-controls { display: flex; align-items: center; gap: 6px; padding-left: 6px; }
+.wc {
+  width: 12px; height: 12px;
+  border-radius: 99px; border: none;
+  cursor: pointer; transition: filter .15s;
+}
+.wc:hover { filter: brightness(.75); }
+.wc-min { background: #fbbf24; }
+.wc-max { background: #10b981; }
+.wc-cls { background: #ef4444; }
+
+/* ── 主内容区（全宽）────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-1);
+}
+
+/* ── 日间模式微调 ─────────────────────────────────────── */
+:global(html.light) .topbar {
+  background: #ffffff;
+  border-bottom-color: rgba(0,0,0,.08);
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
+}
+:global(html.light) .pill-nav {
+  background: #f0f0fa;
+  border-color: rgba(0,0,0,.09);
+}
+:global(html.light) .pill-idle { color: #6565a0; }
+:global(html.light) .pill-idle:hover { background: #e6e6f5; color: #1a1a2e; }
+:global(html.light) .tbar-btn {
+  background: #f5f5ff;
+  border-color: rgba(0,0,0,.1);
+  color: #6565a0;
+}
+:global(html.light) .tbar-btn:hover { background: #eeeeff; color: #1a1a2e; }
+
+/* ── 路由过渡 ─────────────────────────────────────────── */
+.fade-enter-active, .fade-leave-active { transition: opacity .15s ease; }
+.fade-enter-from, .fade-leave-to       { opacity: 0; }
 </style>
