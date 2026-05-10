@@ -5,3 +5,4 @@ backend/routers/__pycache__
 dist
 build
 release
+frontend/package-lock.json
